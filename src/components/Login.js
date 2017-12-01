@@ -1,6 +1,8 @@
-import { Form, Icon, Input, Button } from 'antd';
 import React from 'react';
+import $ from 'jquery';
+import { Form, Icon, Input, Button, message } from 'antd';
 import { Link } from 'react-router-dom';
+import { API_ROOT } from '../constants';
 
 const FormItem = Form.Item;
 
@@ -19,6 +21,21 @@ class HorizontalLoginForm extends React.Component {
             if (!err) {
                 console.log('Received values of form: ', values);
             }
+            console.log(values);
+            $.ajax({
+                url: `${API_ROOT}/login`,
+                method: 'POST',
+                data: JSON.stringify({
+                    username: values.username,
+                    password: values.password,
+                }),
+            }).then((response) => {
+                message(response);
+            }, (error) => {
+                message(error.responseText);
+            }).catch((error) => {
+                message(error);
+            });
         });
     }
     render() {
@@ -33,7 +50,7 @@ class HorizontalLoginForm extends React.Component {
                     validateStatus={userNameError ? 'error' : ''}
                     help={userNameError || ''}
                 >
-                    {getFieldDecorator('userName', {
+                    {getFieldDecorator('username', {
                         rules: [{ required: true, message: 'Please input your username!' }],
                     })(
                         <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="Username" />
