@@ -3,6 +3,8 @@ import $ from 'jquery';
 import { Form, Icon, Input, Button, message } from 'antd';
 import { Link } from 'react-router-dom';
 import { API_ROOT } from '../constants';
+import { PropTypes } from 'prop-types';
+
 
 const FormItem = Form.Item;
 
@@ -11,10 +13,10 @@ function hasErrors(fieldsError) {
 }
 
 class HorizontalLoginForm extends React.Component {
-    componentDidMount() {
-        // To disabled submit button at the beginning.
-        this.props.form.validateFields();
+    static propTypes = {
+        handleLogin: PropTypes.func.isRequired,
     }
+
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
@@ -30,11 +32,11 @@ class HorizontalLoginForm extends React.Component {
                     password: values.password,
                 }),
             }).then((response) => {
-                message(response);
+                this.props.handleLogin(response);
             }, (error) => {
-                message(error.responseText);
+                message.error(error.responseText);
             }).catch((error) => {
-                message(error);
+                message.error(error);
             });
         });
     }
