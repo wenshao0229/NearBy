@@ -1,6 +1,6 @@
 import React from 'react';
 import {Form, Input, Button, message} from 'antd';
-import { API_ROOT } from './constants.js';
+import { API_ROOT } from '../constants.js';
 import $ from 'jquery';
 
 
@@ -128,4 +128,4 @@ class RegistrationForm extends React.Component {
     }
 }
 
-export const WrappedRegister = Form.create()(RegistrationForm);
+export const Register = Form.create()(RegistrationForm);
