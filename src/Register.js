@@ -26,8 +26,8 @@ class RegistrationForm extends React.Component {
                 }).then(function(response) {
                     message.success(response);
                 }).catch(function(error) {
-                    message.success(error.responseText);
-                })
+                    message.error(error.responseText);
+                });
             }
         });
     }
