@@ -1,5 +1,7 @@
 import { Form, Icon, Input, Button } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
+
 const FormItem = Form.Item;
 
 function hasErrors(fieldsError) {
@@ -26,7 +28,7 @@ class HorizontalLoginForm extends React.Component {
         const userNameError = isFieldTouched('userName') && getFieldError('userName');
         const passwordError = isFieldTouched('password') && getFieldError('password');
         return (
-            <Form layout="inline" onSubmit={this.handleSubmit}>
+            <Form className="login-form" onSubmit={this.handleSubmit}>
                 <FormItem
                     validateStatus={userNameError ? 'error' : ''}
                     help={userNameError || ''}
@@ -49,12 +51,14 @@ class HorizontalLoginForm extends React.Component {
                 </FormItem>
                 <FormItem>
                     <Button
+                        className='login-form-button'
                         type="primary"
                         htmlType="submit"
                         disabled={hasErrors(getFieldsError())}
                     >
                         Log in
                     </Button>
+                    Or <Link to='/register'>register now !</Link>
                 </FormItem>
             </Form>
         );
