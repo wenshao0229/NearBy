@@ -8,6 +8,7 @@ export class Header extends React.Component {
         isLoggedIn: PropTypes.bool.isRequired,
         handleLogout: PropTypes.func.isRequired,
     }
+
     render() {
         return (
             <div className="App">
