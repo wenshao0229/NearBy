@@ -1,10 +1,11 @@
 import React from 'react';
 import $ from 'jquery';
-import { Tabs, Button, Spin } from 'antd';
+import { Tabs, Spin } from 'antd';
 import {GEO_OPTIONS, POS_KEY, API_ROOT, AUTH_PREFIX, TOKEN_KEY} from '../constants';
-const TabPane = Tabs.TabPane;
+import { Gallery } from './Gallery';
+import { CreatePostButton } from './CreatePostButton';
 
-const operations = <Button>Extra Action</Button>;
+const TabPane = Tabs.TabPane;
 
 export class Home extends React.Component {
     state = {
@@ -48,13 +49,28 @@ export class Home extends React.Component {
             return <Spin tip="loading geo location..."/>;
         } else if (this.state.loadingPosts) {
             return <Spin tip="loading posts..."/>;
+        } else if (this.state.posts.length > 0) {
+            const images = this.state.posts.map((post) => {
+                return {
+                    user: post.user,
+                    src: post.url,
+                    thumbnail: post.url,
+                    thumbnailWidth: 400,
+                    thumbnailHeight: 300,
+                    caption: post.message,
+                };
+            });
+            console.log(images);
+            return (
+                <Gallery images={images}/>
+            );
         }
         return null;
     }
 
     loadNearbyPosts = () => {
-        //const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
-        const { lat, lon } = {"lat":37.5629917,"lon":-122.32552539999998};
+        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
+        //const { lat, lon } = {"lat":37.5629917,"lon":-122.32552539999998};
         this.setState({ loadingPosts: true });
         return $.ajax({
             url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20`,
@@ -73,8 +89,9 @@ export class Home extends React.Component {
     }
 
     render() {
+        const createPostButton = <CreatePostButton loadNearbyPosts={this.loadNearbyPosts}/>;
         return (
-            <Tabs tabBarExtraContent={operations} className="main-tabs">
+            <Tabs tabBarExtraContent={createPostButton} className="main-tabs">
                 <TabPane tab="Posts" key="1">
                     {this.getGalleryPanelContent()}
                 </TabPane>
