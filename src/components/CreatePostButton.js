@@ -84,7 +84,7 @@ export class CreatePostButton extends React.Component {
                        confirmLoading={this.state.confirmLoading}
                        onCancel={this.handleCancel}
                 >
-                    <WrappedCreatePostForm wrappedComponentRef={this.saveFormRef}/>
+                    <WrappedCreatePostForm wrappedComponRef={this.saveFormRef}/>
                 </Modal>
             </div>
         );
