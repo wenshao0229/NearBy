@@ -1,7 +1,7 @@
 import React from 'react';
 import $ from 'jquery';
 import { Tabs, Spin } from 'antd';
-import {GEO_OPTIONS, POS_KEY, API_ROOT, AUTH_PREFIX, TOKEN_KEY} from '../constants';
+import {GEO_OPTIONS, POS_KEY, API_ROOT, AUTH_PREFIX} from '../constants';
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
 
@@ -46,10 +46,10 @@ export class Home extends React.Component {
         if (this.state.error) {
             return <div> Has error </div>;
         } else if (this.state.loadingGeoLocation) {
-            return <Spin tip="loading geo location..."/>;
+            return <Spin tip="Loading Geo Location..."/>;
         } else if (this.state.loadingPosts) {
-            return <Spin tip="loading posts..."/>;
-        } else if (this.state.posts.length > 0) {
+            return <Spin tip="Loading Posts..."/>;
+        } else if (this.state.posts) {
             const images = this.state.posts.map((post) => {
                 return {
                     user: post.user,
@@ -65,18 +65,17 @@ export class Home extends React.Component {
                 <Gallery images={images}/>
             );
         }
-        return null;
+        return <div>There has no nearby post</div>;
     }
 
     loadNearbyPosts = () => {
-        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
-        //const { lat, lon } = {"lat":37.5629917,"lon":-122.32552539999998};
+        const { lat, lon } = JSON.parse(localStorage.getItem('POS_KEY'));
         this.setState({ loadingPosts: true });
         return $.ajax({
             url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20`,
             method: 'GET',
             headers: {
-                Authorization: `${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`,
+                Authorization: `${AUTH_PREFIX} ${localStorage.getItem('TOKEN_KEY')}`,
             },
         }).then((response) => {
             console.log(response);
@@ -96,7 +95,7 @@ export class Home extends React.Component {
                     {this.getGalleryPanelContent()}
                 </TabPane>
                 <TabPane tab="Map" key="2">
-                    Content of tab 2
+                    content 2
                 </TabPane>
             </Tabs>
         );

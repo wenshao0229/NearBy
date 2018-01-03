@@ -14,7 +14,7 @@ export class Header extends React.Component {
             <div className="App">
                 <header className="App-header">
                     <img src={logo} className="App-logo" alt="logo" />
-                    <h1 className="App-title">NearBy : Geo-Location Based Social Network</h1>
+                    <h1 className="App-title">NearBy : Geo-Based Social Network</h1>
                     {this.props.isLoggedIn ?
                         <a className="logout"
                            onClick={this.props.handleLogout}
