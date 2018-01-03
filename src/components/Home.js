@@ -1,9 +1,10 @@
 import React from 'react';
 import $ from 'jquery';
 import { Tabs, Spin } from 'antd';
-import {GEO_OPTIONS, POS_KEY, API_ROOT, AUTH_PREFIX} from '../constants';
+import {GEO_OPTIONS, API_ROOT, AUTH_PREFIX} from '../constants';
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
+import { WrappedAroundMap } from './AroundMap';
 
 const TabPane = Tabs.TabPane;
 
@@ -33,7 +34,7 @@ export class Home extends React.Component {
         console.log(position);
         this.setState({loadingGeoLocation: false, error: ''});
         const {latitude: lat, longitude: lon} = position.coords;
-        localStorage.setItem(POS_KEY, JSON.stringify({ lat: lat, lon: lon }));
+        localStorage.setItem('POS_KEY', JSON.stringify({ lat: lat, lon: lon }));
         this.loadNearbyPosts();
 
     }
@@ -60,7 +61,6 @@ export class Home extends React.Component {
                     caption: post.message,
                 };
             });
-            console.log(images);
             return (
                 <Gallery images={images}/>
             );
@@ -95,7 +95,12 @@ export class Home extends React.Component {
                     {this.getGalleryPanelContent()}
                 </TabPane>
                 <TabPane tab="Map" key="2">
-                    content 2
+                    <WrappedAroundMap
+                        googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4R6AN7SmujjPUIGKdyao2Kqitzr1kiRg&v=3.exp&libraries=geometry,drawing,places"
+                        loadingElement={<div style={{ height: `100%` }} />}
+                        containerElement={<div style={{ height: `500px` }} />}
+                        mapElement={<div style={{ height: `100%` }} />}
+                    />
                 </TabPane>
             </Tabs>
         );
