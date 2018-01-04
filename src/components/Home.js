@@ -68,8 +68,8 @@ export class Home extends React.Component {
         return <div>There has no nearby post</div>;
     }
 
-    loadNearbyPosts = () => {
-        const { lat, lon } = JSON.parse(localStorage.getItem('POS_KEY'));
+    loadNearbyPosts = (location) => {
+        const { lat, lon } = location ? location : JSON.parse(localStorage.getItem('POS_KEY'));
         this.setState({ loadingPosts: true });
         return $.ajax({
             url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20`,

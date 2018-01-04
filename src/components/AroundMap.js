@@ -10,8 +10,7 @@ class AroundMap extends React.Component {
     onDragEnd = () => {
         const center = this.map.getCenter();
         const position = { lat: center.lat(), lon: center.lng() };
-        localStorage.setItem('POS_KEY', JSON.stringify(position));
-        this.props.loadNearbyPosts();
+        this.props.loadNearbyPosts(position);
     }
 
     render() {

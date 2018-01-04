@@ -21,6 +21,7 @@ export class CreatePostButton extends React.Component {
     }
 
     handleOk = () => {
+        // get value
         const form = this.form.getWrappedForm();
         form.validateFields((err, values) => {
             if (err) { return; }
@@ -33,7 +34,7 @@ export class CreatePostButton extends React.Component {
             formData.set('message', form.getFieldValue('message'));
             formData.set('image', form.getFieldValue('image')[0]);
             this.setState({ confirmLoading: true });
-
+            // submit request
             $.ajax({
                 url: `${API_ROOT}/post`,
                 method: 'POST',
@@ -84,7 +85,7 @@ export class CreatePostButton extends React.Component {
                        confirmLoading={this.state.confirmLoading}
                        onCancel={this.handleCancel}
                 >
-                    <WrappedCreatePostForm wrappedComponRef={this.saveFormRef}/>
+                    <WrappedCreatePostForm wrappedComponentRef={this.saveFormRef}/>
                 </Modal>
             </div>
         );
