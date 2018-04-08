@@ -14,7 +14,6 @@ export class Home extends React.Component {
         error: '',
         loadingPosts: false,
         loadingGeoLocation: false,
-
     }
     componentDidMount() {
         if ("geolocation" in navigator) {
@@ -27,7 +26,6 @@ export class Home extends React.Component {
         } else {
             this.setState({error: 'Your browser does not support geo location!'});
         };
-
     }
 
     onSuccessLoadGeoLocation = (position) => {
@@ -36,7 +34,6 @@ export class Home extends React.Component {
         const {latitude: lat, longitude: lon} = position.coords;
         localStorage.setItem('POS_KEY', JSON.stringify({ lat: lat, lon: lon }));
         this.loadNearbyPosts();
-
     }
 
     onFailedLoadGeoLocation = () => {

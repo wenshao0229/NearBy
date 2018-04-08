@@ -22,15 +22,14 @@ class AroundMap extends React.Component {
             const right = new google.maps.LatLng(center.lat(), ne.lng());
             return 0.000621371192 * google.maps.geometry.spherical.computeDistanceBetween(center, right);
         }
-
     }
 
     render() {
         const position = JSON.parse(localStorage.getItem('POS_KEY'));
         return (
             <GoogleMap
-                onDragEnd={this.reload}
                 onZoomChanged={this.reload}
+                onDragEnd={this.reload}
                 ref={this.getMapRef}
                 defaultZoom={11}
                 defaultCenter={{lat: position.lat, lng: position.lon}}
