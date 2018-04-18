@@ -51,8 +51,8 @@ class CreatePostForm extends React.Component {
                         })(
                             <Upload.Dragger
                                 name="files"
-                                action="/upload.do"
                                 beforeUpload={this.beforeUpload}
+                                // won't upload the img immediately when take a files
                             >
                                 <p className="ant-upload-drag-icon">
                                     <Icon type="inbox" />

@@ -3,6 +3,8 @@ import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
 import { AroundMarker } from './AroundMarker';
 
 class AroundMap extends React.Component {
+
+    // get the reference of map in order to get center point
     getMapRef = (map) => {
         this.map = map;
     }
@@ -37,6 +39,7 @@ class AroundMap extends React.Component {
                 {this.props.posts ? this.props.posts.map((post, index) =>
                        <AroundMarker
                            key={`${index}-${post.user}-${post.url}`}
+                           // unique ID for .map iteration
                            post={post}
                        />
                 ) : null}

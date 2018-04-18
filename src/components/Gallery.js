@@ -30,7 +30,13 @@ export class Gallery extends Component {
         });
 
         return (
-            <div style={wrapperStyle}>
+            <div style={{
+                display: "block",
+                minHeight: "1px",
+                width: "100%",
+                border: "1px solid #ddd",
+                overflow: "auto"
+            }}>
                 <GridGallery
                     backdropClosesModal={true}
                     images={images}
@@ -39,15 +45,6 @@ export class Gallery extends Component {
         );
     }
 }
-
-
-const wrapperStyle = {
-    display: "block",
-    minHeight: "1px",
-    width: "100%",
-    border: "1px solid #ddd",
-    overflow: "auto"
-};
 
 const captionStyle = {
     backgroundColor: "rgba(0, 0, 0, 0.8)",

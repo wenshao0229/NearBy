@@ -4,7 +4,6 @@ import { API_ROOT } from '../constants.js';
 import $ from 'jquery';
 import { Link } from 'react-router-dom';
 
-
 const FormItem = Form.Item;
 
 class RegistrationForm extends React.Component {
@@ -14,27 +13,27 @@ class RegistrationForm extends React.Component {
     };
 
     handleSubmit = (e) => {
-        e.preventDefault();
-        this.props.form.validateFieldsAndScroll((err, values) => {
-            if (!err) {
-                console.log('Received values of form: ', values);
-                $.ajax({
-                    url: `${API_ROOT}/signup` ,
-                    method: 'POST',
-                    data: JSON.stringify({
-                        username: values.username,
-                        password: values.password
-                    })
-                }).then( (response) => {
-                    message.success(response);
-                    this.props.history.push('/login');
-                }, (error) =>  {
-                    message.error(error.responseText);
-                }).catch( (error) => {
-                    message.error(error);
-                });
-            }
-        });
+            e.preventDefault();
+            this.props.form.validateFields((err, values) => {
+                if (!err) {
+                    console.log('Received values of form: ', values);
+                    $.ajax({
+                        url: `${API_ROOT}/signup` ,
+                        method: 'POST',
+                        data: JSON.stringify({
+                            username: values.username,
+                            password: values.password
+                        })
+                    }).then((response) => {
+                        message.success(response);
+                        this.props.history.push('/login');
+                    }, (error) =>  {
+                        message.error(error.responseText);
+                    }).catch((error) => {
+                        message.error(error);
+                    });
+                }
+            });
     }
 
     handleConfirmBlur = (e) => {
@@ -91,9 +90,9 @@ class RegistrationForm extends React.Component {
                     {...formItemLayout}
                     label="Username"
                     hasFeedback
-                >
+                    >
                     {getFieldDecorator('username', {
-                        rules: [{required: true, message: 'Please input your nickname!', whitespace: true}],
+                        rules: [{required: true, message: 'Please input your nickname!'}],
                     })(
                         <Input/>
                     )}
@@ -114,19 +113,19 @@ class RegistrationForm extends React.Component {
                     )}
                 </FormItem>
                 <FormItem
-                {...formItemLayout}
-                label="Confirm Password"
-                hasFeedback
+                    {...formItemLayout}
+                    label="Confirm Password"
+                    hasFeedback
                 >
-                {getFieldDecorator('confirm', {
-                    rules: [{
-                        required: true, message: 'Please confirm your password!',
-                    }, {
-                        validator: this.checkPassword,
-                    }],
-                })(
-                    <Input type="password" onBlur={this.handleConfirmBlur}/>
-                )}
+                    {getFieldDecorator('confirm', {
+                        rules: [{
+                            required: true, message: 'Please confirm your password!',
+                        }, {
+                            validator: this.checkPassword,
+                        }],
+                    })(
+                        <Input type="password" onBlur={this.handleConfirmBlur}/>
+                    )}
                 </FormItem>
                 <FormItem {...tailFormItemLayout}>
                     <Button type="primary" htmlType="submit">Register</Button>

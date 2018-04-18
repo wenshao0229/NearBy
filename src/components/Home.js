@@ -30,14 +30,20 @@ export class Home extends React.Component {
 
     onSuccessLoadGeoLocation = (position) => {
         console.log(position);
-        this.setState({loadingGeoLocation: false, error: ''});
+        this.setState({
+            loadingGeoLocation: false,
+            error: ''
+        });
         const {latitude: lat, longitude: lon} = position.coords;
         localStorage.setItem('POS_KEY', JSON.stringify({ lat: lat, lon: lon }));
         this.loadNearbyPosts();
     }
 
     onFailedLoadGeoLocation = () => {
-        this.setState({loadingGeoLocation: false, error:'Failed to load geo location'});
+        this.setState({
+            loadingGeoLocation: false,
+            error:'Failed to load geo location'
+        });
     }
 
     getGalleryPanelContent = () => {

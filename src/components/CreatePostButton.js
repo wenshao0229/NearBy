@@ -34,6 +34,7 @@ export class CreatePostButton extends React.Component {
             formData.set('message', form.getFieldValue('message'));
             formData.set('image', form.getFieldValue('image')[0]);
             this.setState({ confirmLoading: true });
+
             // submit request
             $.ajax({
                 url: `${API_ROOT}/post`,

@@ -7,7 +7,7 @@ export class Header extends React.Component {
     static propTypes = {
         isLoggedIn: PropTypes.bool.isRequired,
         handleLogout: PropTypes.func.isRequired,
-    }
+    };
 
     render() {
         return (
