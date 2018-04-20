@@ -1,7 +1,7 @@
 package main
 
 import (
-	elastic "gopkg.in/olivere/elastic.v3"
+	elastic "gopkg.in/olivere/elastic.v3" // elastic as the shortcut
 	"github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
@@ -20,7 +20,6 @@ import (
 
 const (
 	INDEX = "around"
-	TYPE = "post"
 	DISTANCE = "200km"
 	//PROJECT_ID = "around-186123"
 	//BT_INSTANCE = "around-post"
@@ -38,12 +37,14 @@ type Post struct {
 	User     string `json:"user"`
 	Message  string  `json:"message"`
 	Location Location `json:"location"`
-	Url      string `json:"url"`
+	Url      string `json:"url"` // picture URL in GCS
 }
 
+// private key
 var mySigningKey = []byte("secret")
 
 func main() {
+	// http://olivere.github.io/elastic/
 	// Create a client
 	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
 	if err != nil {
@@ -78,8 +79,6 @@ func main() {
 	}
 
 	fmt.Println("Started service successfully")
-	// Here we are instantiating the gorilla/mux router
-	r := mux.NewRouter()
 
 	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
@@ -88,12 +87,15 @@ func main() {
 		SigningMethod: jwt.SigningMethodHS256,
 	})
 
+	r := mux.NewRouter()
+	http.Handle("/", r)
+
+	// JTW check the request first
 	r.Handle("/post", jwtMiddleware.Handler(http.HandlerFunc(handlerPost))).Methods("POST")
 	r.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(handlerSearch))).Methods("GET")
 	r.Handle("/login", http.HandlerFunc(loginHandler)).Methods("POST")
 	r.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST")
 
-	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -107,11 +109,9 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	username := claims.(jwt.MapClaims)["username"]
 
 	// 32 << 20 is the maxMemory param for ParseMultipartForm, equals to 32MB (1MB = 1024 * 1024 bytes = 2^20 bytes)
-	// After you call ParseMultipartForm, the file will be saved in the server memory with maxMemory size.
-	// If the file size is larger than maxMemory, the rest of the data will be saved in a system temporary file.
 	r.ParseMultipartForm(32 << 20)
 
-	// Parse from form data.
+	// Parse form data.
 	fmt.Printf("Received one post request %s\n", r.FormValue("message"))
 	lat, _ := strconv.ParseFloat(r.FormValue("lat"), 64)
 	lon, _ := strconv.ParseFloat(r.FormValue("lon"), 64)
@@ -124,19 +124,18 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	id := uuid.New()
 
 	file, _, err := r.FormFile("image")
 	if err != nil {
-		http.Error(w, "Image is not available", http.StatusInternalServerError)
+		http.Error(w, "Image is not available", http.StatusInternalServerError) // response status 500
 		fmt.Printf("Image is not available: %v.\n", err)
 		return
 	}
+	defer file.Close()
 
 	ctx := context.Background()
-
-	defer file.Close()
-	_, attrs, err := saveToGCS(ctx, file, id)
+	id := uuid.New()
+	attrs, err := saveToGCS(ctx, file, id)
 	if err != nil {
 		http.Error(w, "GCS is not setup", http.StatusInternalServerError)
 		fmt.Printf("GCS is not setup %v\n", err)
@@ -148,10 +147,11 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 
 	// Save to ES.
 	saveToES(p, id)
-
 }
 
-func saveToGCS(ctx context.Context, r io.Reader, name string) (*storage.ObjectHandle, *storage.ObjectAttrs, error) {
+func saveToGCS(ctx context.Context, r io.Reader, name string) (*storage.ObjectAttrs, error) {
+	// https://cloud.google.com/storage/docs/reference/libraries#client-libraries-install-go
+	// https://github.com/GoogleCloudPlatform/golang-samples/blob/master/storage/objects/main.go
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
@@ -163,18 +163,20 @@ func saveToGCS(ctx context.Context, r io.Reader, name string) (*storage.ObjectHa
 	wc := obj.NewWriter(ctx)
 
 	if _,err = io.Copy(wc, r) ;err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if err := wc.Close(); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
+
+	// Set the access authorization to all users
 	if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	attrs, err := obj.Attrs(ctx)
 	fmt.Printf("Post is saved to GCS: %s\n", attrs.MediaLink)
-	return obj, attrs, err
+	return attrs, err
 }
 
 // Save a post to ElasticSearch
@@ -185,23 +187,24 @@ func saveToES(p *Post, id string) {
 		return
 	}
 
-	// Save it to index
 	_, err = client.Index().
 		Index(INDEX).
-		Type(TYPE).
+		Type("post").
 		Id(id).
 		BodyJson(p).
 		Refresh(true).
 		Do()
+
 	if err != nil {
 		panic(err)
+		return
 	}
-
-	fmt.Printf("Post is saved to Index: %s\n", p.Message)
+	fmt.Printf("Post is saved to ES: %s\n", p.Message)
 }
 
 func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received one request for search")
+	// string conversion
 	lat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 	lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
 	// range is optional
@@ -224,7 +227,6 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	q := elastic.NewGeoDistanceQuery("location")
 	q = q.Distance(ran).Lat(lat).Lon(lon)
 
-	// Some delay may range from seconds to minutes. So if you don't get enough results. Try it later.
 	searchResult, err := client.Search().
 		Index(INDEX).
 		Query(q).
@@ -238,16 +240,11 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	// searchResult is of type SearchResult and returns hits, suggestions,
 	// and all kinds of other information from Elasticsearch.
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
-	// TotalHits is another convenience function that works even when something goes wrong.
 	fmt.Printf("Found a total of %d post\n", searchResult.TotalHits())
 
-	// Each is a convenience function that iterates over hits in a search result.
-	// It makes sure you don't need to check for nil values in the response.
-	// However, it ignores errors in serialization.
 	var typ Post
 	var ps []Post
-	for _, item := range searchResult.Each(reflect.TypeOf(typ)) {
-		// instance of
+	for _, item := range searchResult.Each(reflect.TypeOf(typ)) { // instance of
 		p := item.(Post) // p = (Post) item
 		fmt.Printf("Post by %s: %s at lat %v and lon %v\n", p.User, p.Message, p.Location.Lat, p.Location.Lon)
 		if !p.spamFilter(p.Message) {
@@ -269,7 +266,9 @@ func (p Post) spamFilter(msg string) bool {
 	m := map[string]bool{
 		"shit" : true,
 		"fuck" : true,
+		"chink": true,
 	}
+
 	for k := range m {
 		if strings.Contains(msg, k) {
 			return true
